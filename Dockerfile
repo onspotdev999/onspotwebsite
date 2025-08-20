@@ -12,3 +12,5 @@ WORKDIR /bitnami/wordpress
 
 # Expose port 8080
 EXPOSE 80
+
+# test
