@@ -1,16 +1,11 @@
-# Use the Bitnami WordPress image as the base
-FROM bitnami/wordpress:6.3.1
+FROM wordpress:latest
 
-Install additional PHP extensions if needed
-RUN install_packages php7.4-zip php7.4-mbstring
+# Install extra PHP extensions (optional)
+RUN docker-php-ext-install mysqli && docker-php-ext-enable mysqli
 
-Copy custom app (if not using volume mapping)
-COPY ./app /bitnami/wordpress/app
+# Copy custom configs/themes/plugins if needed
+# COPY ./themes /var/www/html/wp-content/themes
+# COPY ./plugins /var/www/html/wp-content/plugins
+COPY . /var/www/html/
 
-# Set working directory
-WORKDIR /bitnami/wordpress
-
-# Expose port 8080
 EXPOSE 80
-
-# test
