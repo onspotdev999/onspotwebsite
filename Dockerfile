@@ -1,14 +1,34 @@
-# Use the Bitnami WordPress image as the base
-FROM bitnami/wordpress:6.3.1
+# Use the official PHP image with Apache
+FROM php:8.2-apache
 
-# Install additional PHP extensions if needed
-# RUN install_packages php7.4-zip php7.4-mbstring
+# Install system dependencies
+RUN apt-get update && apt-get install -y \
+    libpng-dev \
+    libjpeg-dev \
+    libfreetype6-dev \
+    libzip-dev \
+    unzip \
+    git \
+    && docker-php-ext-configure gd --with-freetype --with-jpeg \
+    && docker-php-ext-install gd mysqli zip
 
-# Copy custom app (if not using volume mapping)
-# COPY ./app /bitnami/wordpress/app
+# Enable Apache rewrite module
+RUN a2enmod rewrite
 
 # Set working directory
-WORKDIR /bitnami/wordpress
+WORKDIR /var/www/html
 
-# Expose port 8080
+# Download and extract WordPress
+RUN curl -o wordpress.tar.gz https://wordpress.org/latest.tar.gz \
+    && tar -xzf wordpress.tar.gz --strip-components=1 \
+    && rm wordpress.tar.gz
+
+# Set ownership and permissions
+RUN chown -R www-data:www-data /var/www/html \
+    && chmod -R 755 /var/www/html
+
+# Expose Apache port
 EXPOSE 80
+
+# Start Apache server
+CMD ["apache2-foreground"]
